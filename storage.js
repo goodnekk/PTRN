@@ -35,6 +35,19 @@ function create(type, value, callback){
 	});
 }
 
+function findorcreate(type, value, callback){
+	transact(function(tid){
+		db.get("SELECT * FROM nodes INNER JOIN (SELECT id, MAX(tid) tid, value FROM nodevalues GROUP BY id) nv ON nodes.id = nv.id WHERE nodes.type=? AND nv.value=?", [type, value], function(err, resp){
+			if(resp) {
+				callback(resp);
+			} else {
+				create(type, value, callback);
+			}
+
+		});
+	});
+}
+
 function update(id, value, callback){
 	transact(function(tid){
 		db.run("INSERT INTO nodevalues (tid, id, value) VALUES(?, ?, ?)", [tid, id, value], function(err){
@@ -47,7 +60,7 @@ function update(id, value, callback){
 
 function relate(aid, bid, callback){
 	transact(function(tid){
-		db.run("INSERT INTO relations (tid, aid, bid) VALUES(?, ?, ?),(?, ?, ?)", [tid, aid, bid, tid, bid, aid], function(err){
+		db.run("INSERT INTO relations (tid, aid, bid) VALUES(?, ?, ?)", [tid, aid, bid], function(err){
 			if(err) console.log(err);
 			console.log(tid+"| RELATE "+aid+" <-> "+bid);
 			callback({
@@ -137,6 +150,7 @@ function dump(callback){
 
 module.exports = {
 	create: create,
+	findorcreate: findorcreate,
 	update: update,
 	relate: relate,
 

@@ -24,6 +24,13 @@ server.post('/create', function respond(req, res, next) {
 	});
 });
 
+server.post('/findorcreate', function respond(req, res, next) {
+	storage.findorcreate(req.body.type, req.body.value, function(value){
+		res.send(value);
+		next();
+	});
+});
+
 server.post('/update/:id', function respond(req, res, next) {
 	storage.update(req.params.id, req.body.value, function(value){
   	  res.send(value);
