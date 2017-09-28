@@ -63,6 +63,13 @@ server.post('/relate', function respond(req, res, next) {
     });
 });
 
+server.post('/unrelate', function respond(req, res, next) {
+	storage.unrelate(req.body.aid, req.body.bid, function(value){
+  		res.send(value);
+  		next();
+    });
+});
+
 server.get('/get/:id', function respond(req, res, next) {
 	storage.get(req.params.id, function(value){
 		res.send(value);

@@ -10,8 +10,8 @@ db.serialize(function() {
 	db.run("CREATE TABLE IF NOT EXISTS nodes (tid INTEGER, id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT)");
 
 	//keeps track of historical values
-	db.run("CREATE TABLE IF NOT EXISTS nodevalues (tid INTEGER PRIMARY KEY, id INTEGER, value TEXT)");
-  	db.run("CREATE TABLE IF NOT EXISTS relations (tid INTEGER, aid INTEGER, bid INTEGER)");
+	db.run("CREATE TABLE IF NOT EXISTS nodevalues (tid INTEGER PRIMARY KEY, id INTEGER, value TEXT, del INTEGER)");
+  	db.run("CREATE TABLE IF NOT EXISTS relations (tid INTEGER, aid INTEGER, bid INTEGER, del INTEGER)");
 });
 
 
@@ -71,6 +71,21 @@ function relate(aid, bid, callback){
 		});
 	});
 }
+
+function unrelate(aid, bid, callback){
+	transact(function(tid){
+		db.run("UPDATE relations SET del=? WHERE (aid=? AND bid=?) OR (aid=? AND bid=?)", [tid, aid, bid, bid, aid], function(err){
+			if(err) console.log(err);
+			console.log(tid+"| UNRELATE "+aid+" <-> "+bid);
+			callback({
+				tid: tid,
+				aid: aid,
+				bid: bid
+			});
+		});
+	});
+}
+
 
 function get(id, callback){
 	db.get("SELECT * FROM nodes INNER JOIN (SELECT id, MAX(tid) tid, value FROM nodevalues GROUP BY id) nv ON nodes.id = nv.id WHERE nodes.id=?", [id], function(err, row){
@@ -135,9 +150,9 @@ function relation(id, callback){
 
 function dump(callback){
 	//nodes
-	db.all("SELECT * FROM nodes INNER JOIN (SELECT id, MAX(tid) tid, value FROM nodevalues GROUP BY id) nv ON nodes.id = nv.id", function(err, nodes){
+	db.all("SELECT * FROM nodes INNER JOIN (SELECT id, MAX(tid) tid, value, del FROM nodevalues GROUP BY id) nv ON nodes.id = nv.id AND nv.del IS NULL", function(err, nodes){
 		if(err) console.log(err);
-		db.all("SELECT * FROM relations", function(err, relations){
+		db.all("SELECT * FROM relations WHERE del IS NULL", function(err, relations){
 			if(err) console.log(err);
 			callback({
 				nodes: nodes,
@@ -177,7 +192,9 @@ module.exports = {
 	create: create,
 	findorcreate: findorcreate,
 	update: update,
+
 	relate: relate,
+	unrelate: unrelate,
 
 	get: get,
 	select: select,
