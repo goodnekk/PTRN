@@ -1,6 +1,6 @@
 var sqlite3 = require('sqlite3').verbose();
-
-var db = new sqlite3.Database('test.sqlite');
+var config = require('./config.json');
+var db = new sqlite3.Database(config.storage);
 
 db.serialize(function() {
 	//keeps track of transactions and dates
@@ -147,6 +147,31 @@ function dump(callback){
 	});
 }
 
+function dumpafter(age, callback){
+	//nodes
+	db.all("SELECT * FROM nodes INNER JOIN (SELECT id, MAX(tid) tid, value FROM nodevalues GROUP BY id) nv ON nodes.id = nv.id WHERE nv.tid > ?", [age], function(err, nodes){
+		if(err) console.log(err);
+		db.all("SELECT * FROM relations WHERE tid > ?", [age], function(err, relations){
+			if(err) console.log(err);
+			callback({
+				nodes: nodes,
+				relations: relations
+			});
+		});
+	});
+}
+
+function age(callback){
+	//nodes
+	db.get("SELECT MAX(id) id, timestamp FROM transactions", function(err, transaction){
+		if(err) console.log(err);
+		callback({
+			transaction: transaction.id,
+			timestamp: transaction.timestamp
+		});
+	});
+}
+
 
 module.exports = {
 	create: create,
@@ -158,5 +183,7 @@ module.exports = {
 	select: select,
 	relation: relation,
 
-	dump: dump
+	dump: dump,
+	dumpafter: dumpafter,
+	age: age,
 };

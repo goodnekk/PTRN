@@ -1,7 +1,7 @@
 var restify = require('restify');
 var corsMiddleware = require('restify-cors-middleware');
 var storage = require('./storage.js');
-
+var config = require('./config.json');
 
 var server = restify.createServer({
     mapParams: true
@@ -15,6 +15,17 @@ var cors = corsMiddleware({
 server.pre(cors.preflight);
 server.use(cors.actual);
 server.use(restify.plugins.bodyParser());
+
+server.get('/', function respond(req, res, next) {
+	storage.age(function(value){
+		res.send({
+			"version": "0.0.1",
+			"transactions": value.transaction,
+			"lastTransaction": value.timestamp
+		});
+		next();
+    });
+});
 
 //routes
 server.post('/create', function respond(req, res, next) {
@@ -80,7 +91,14 @@ server.get('/dump', function respond(req, res, next) {
     });
 });
 
+server.get('/dump/:age', function respond(req, res, next) {
+	storage.dumpafter(req.params.age,function(value){
+  		res.send(value);
+  		next();
+    });
+});
 
-server.listen(9000, function() {
+
+server.listen(config.port, function() {
   console.log('%s listening at %s', server.name, server.url);
 });
