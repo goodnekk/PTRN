@@ -9,7 +9,7 @@ ENV PORT 8080
 ENV DB_STORAGE database.sqlite
 
 # Install
-COPY . /app
+COPY ./src /app
 COPY config-docker.json /app/config.json
 RUN npm install .
 
