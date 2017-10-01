@@ -141,7 +141,7 @@ function select(type, callback){
 }
 
 function relation(id, callback){
-	db.all("SELECT relations.tid rid, childvalues.tid, child.id, child.type, childvalues.value FROM nodes INNER JOIN relations ON nodes.id = relations.aid INNER JOIN nodes child ON relations.bid = child.id INNER JOIN (SELECT id, MAX(tid) tid, value FROM nodevalues GROUP BY id) childvalues ON child.id=childvalues.id WHERE nodes.id=?", [id], function(err, rows){
+	db.all("SELECT relations.tid rid, childvalues.tid, child.id, child.type, childvalues.value FROM nodes INNER JOIN relations ON nodes.id = relations.aid OR nodes.id = relations.bid INNER JOIN nodes child ON relations.bid = child.id INNER JOIN (SELECT id, MAX(tid) tid, value FROM nodevalues GROUP BY id) childvalues ON child.id=childvalues.id WHERE nodes.id=?", [id], function(err, rows){
 		if(err) console.log(err);
 		callback(rows);
 	});

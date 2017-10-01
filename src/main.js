@@ -63,6 +63,15 @@ server.post('/relate', function respond(req, res, next) {
     });
 });
 
+server.post('/createrelate', function respond(req, res, next) {
+	storage.create(req.body.type, req.body.value, function(value){
+		storage.relate(req.body.bid, value.id, function(rel){
+			res.send(value);
+			next();
+		});
+	});
+});
+
 server.post('/unrelate', function respond(req, res, next) {
 	storage.unrelate(req.body.aid, req.body.bid, function(value){
   		res.send(value);
@@ -77,12 +86,13 @@ server.get('/get/:id', function respond(req, res, next) {
   next();
 });
 
-server.get('/select/:query', function respond(req, res, next) {
-	storage.select(req.params.query, function(value){
-  		res.send(value);
-  		next();
-    });
-});
+//not working
+//server.get('/select/:query', function respond(req, res, next) {
+//	storage.select(req.params.query, function(value){
+//  		res.send(value);
+//  		next();
+//    });
+//});
 
 server.get('/relation/:id', function respond(req, res, next) {
 	storage.relation(req.params.id, function(value){
