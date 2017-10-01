@@ -66,7 +66,10 @@ server.post('/relate', function respond(req, res, next) {
 server.post('/createrelate', function respond(req, res, next) {
 	storage.create(req.body.type, req.body.value, function(value){
 		storage.relate(req.body.bid, value.id, function(rel){
-			res.send(value);
+			res.send({
+				node: value,
+				relation: rel
+			});
 			next();
 		});
 	});
