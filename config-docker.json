@@ -1,4 +1,8 @@
 {
 	"port": "__PORT__",
-	"storage": "__DB_STORAGE__"
+	"storage": "__DB_STORAGE__",
+	"mail": {
+		"apiKey": "__MAIL_APIKEY__",
+		"domain": "__MAIL_DOMAIN__"
+	}
 }

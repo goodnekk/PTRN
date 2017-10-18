@@ -1,6 +1,7 @@
 var restify = require('restify');
 var corsMiddleware = require('restify-cors-middleware');
 var storage = require('./storage.js');
+var mail = require('./mail.js');
 var config = require('./config.json');
 
 var server = restify.createServer({
@@ -86,7 +87,7 @@ server.get('/get/:id', function respond(req, res, next) {
 	storage.get(req.params.id, function(value){
 		res.send(value);
 	});
-  next();
+	next();
 });
 
 //not working
@@ -116,6 +117,43 @@ server.get('/dump/:age', function respond(req, res, next) {
   		res.send(value);
   		next();
     });
+});
+
+
+
+server.post('/user/add', function respond(req, res, next) {
+	storage.addUser(req.body.id,function(value){
+		res.send(value);
+		next();
+	});
+});
+
+server.post('/user/set', function respond(req, res, next) {
+	storage.updateUser(req.body.id, req.body.name,function(value){
+		res.send(value);
+		next();
+	});
+});
+
+server.post('/user/hash', function respond(req, res, next) {
+	storage.hashUser(req.body.name,function(value){
+		if(value){
+			mail.password(value.name, value.pass, function(e){
+				res.send({succes: true});
+				next();
+			});
+		} else {
+			res.send({succes: false});
+			next();
+		}
+	});
+});
+
+server.post('/user/check', function respond(req, res, next) {
+	storage.checkUser(req.body.name,req.body.pass,function(value){
+		res.send(value);
+		next();
+	});
 });
 
 

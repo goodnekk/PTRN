@@ -1,4 +1,8 @@
 {
 	"port": "9000",
-	"storage": "test.sqlite"
+	"storage": "test.sqlite",
+	"mail": {
+		"apiKey": "",
+		"domain": ""
+	}
 }

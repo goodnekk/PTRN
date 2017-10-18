@@ -1,4 +1,6 @@
 var sqlite3 = require('sqlite3').verbose();
+var uuid = require('uuid/v1');
+
 var config = require('./config.json');
 var db = new sqlite3.Database(config.storage);
 
@@ -11,7 +13,10 @@ db.serialize(function() {
 
 	//keeps track of historical values
 	db.run("CREATE TABLE IF NOT EXISTS nodevalues (tid INTEGER PRIMARY KEY, id INTEGER, value TEXT, del INTEGER)");
-  	db.run("CREATE TABLE IF NOT EXISTS relations (tid INTEGER, aid INTEGER, bid INTEGER, del INTEGER)");
+	db.run("CREATE TABLE IF NOT EXISTS relations (tid INTEGER, aid INTEGER, bid INTEGER, del INTEGER)");
+
+	//keeps track of users
+	db.run("CREATE TABLE IF NOT EXISTS users (name TEXT, pass TEXT, node INTEGER)");
 });
 
 
@@ -188,6 +193,62 @@ function age(callback){
 }
 
 
+function addUser(nodeid, callback){
+	var pass = uuid();
+	db.run("INSERT INTO users (pass, node) VALUES(?,?)", [pass, nodeid], function(err){
+		if(err) console.log(err);
+		console.log("   | NEW USER ");
+		callback({
+			id: nodeid
+		});
+	});
+}
+
+function updateUser(nodeid, name, callback){
+	var pass = uuid();
+	db.run("UPDATE users SET name=? WHERE node=?", [name, nodeid], function(err){
+		if(err) console.log(err);
+		console.log("   | SET USER ");
+		callback({
+			name: name
+		});
+	});
+}
+
+function hashUser(name, callback){
+	var pass = uuid(); // -> '6c84fb90-12c4-11e1-840d-7b25c5ee775a'
+	db.get("SELECT name FROM users WHERE name=?", [name], function(err, result){
+		if(err) console.log(err);
+		if(result !== undefined){
+			db.run("UPDATE users SET pass=? WHERE name=?", [pass, name], function(err){
+				if(err) console.log(err);
+				console.log("   | HASH USER ");
+				callback({
+					name: name,
+					pass: pass
+				});
+			});
+		} else {
+			callback();
+		}
+	});
+
+}
+
+function checkUser(name, pass, callback){
+	db.get("SELECT name FROM users WHERE name=? AND pass=?", [name, pass], function(err, result){
+		if(err) console.log(err);
+		if(result !== undefined){
+			result = true;
+		} else {
+			result = false;
+		}
+		console.log("   | CHECK USER "+result);
+		callback({succes: result});
+	});
+}
+
+
 module.exports = {
 	create: create,
 	findorcreate: findorcreate,
@@ -203,4 +264,9 @@ module.exports = {
 	dump: dump,
 	dumpafter: dumpafter,
 	age: age,
+
+	addUser: addUser,
+	updateUser: updateUser,
+	hashUser: hashUser,
+	checkUser: checkUser
 };
