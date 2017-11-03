@@ -12,6 +12,8 @@
   "dependencies": {
     "restify": "^5.0.1",
     "restify-cors-middleware": "^1.0.1",
-	"sqlite3": "^3.1.8"
+	"sqlite3": "^3.1.8",
+	"mailgun-js": "^0.13.1",
+	"uuid": "^3.1.0"
   }
 }
