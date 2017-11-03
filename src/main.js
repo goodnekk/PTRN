@@ -23,7 +23,8 @@ server.use(restify.plugins.authorizationParser());
 server.use(function authenticate(req, res, next) {
 	//console.log(req.authorization.basic.password);
 	req.access = -1;
-	if(req.authorization.basic.password !== null){
+
+	if(req.authorization && req.authorization.basic && req.authorization.basic.password !== null){
 		storage.checkUserAccess(req.authorization.basic.password, function(resp){
 			if(resp.succes){
 				req.access = resp.role+1;
