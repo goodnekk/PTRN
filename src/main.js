@@ -10,12 +10,32 @@ var server = restify.createServer({
 
 //CORS
 var cors = corsMiddleware({
-  preflightMaxAge: 5, //Optional
-  origins: ['*'],
+	preflightMaxAge: 5, //Optional
+	origins: ['*'],
+	allowHeaders: ['Authorization'],
 });
+
 server.pre(cors.preflight);
 server.use(cors.actual);
 server.use(restify.plugins.bodyParser());
+server.use(restify.plugins.authorizationParser());
+
+server.use(function authenticate(req, res, next) {
+	//console.log(req.authorization.basic.password);
+	req.access = -1;
+	if(req.authorization.basic.password !== null){
+		storage.checkUserAccess(req.authorization.basic.password, function(resp){
+			if(resp.succes){
+				req.access = resp.role+1;
+			}
+			return next();
+		});
+	} else {
+		return next();
+	}
+
+
+});
 
 server.get('/', function respond(req, res, next) {
 	storage.age(function(value){
@@ -30,24 +50,36 @@ server.get('/', function respond(req, res, next) {
 
 //routes
 server.post('/create', function respond(req, res, next) {
-	storage.create(req.body.type, req.body.value, function(value){
-		res.send(value);
+	if(req.access>=0){
+		storage.create(req.body.type, req.body.value, function(value){
+			res.send(value);
+			next();
+		});
+	} else {
 		next();
-	});
+	}
 });
 
 server.post('/findorcreate', function respond(req, res, next) {
-	storage.findorcreate(req.body.type, req.body.value, function(value){
-		res.send(value);
+	if(req.access>=0){
+		storage.findorcreate(req.body.type, req.body.value, function(value){
+			res.send(value);
+			next();
+		});
+	} else {
 		next();
-	});
+	}
 });
 
 server.post('/update/:id', function respond(req, res, next) {
-	storage.update(req.params.id, req.body.value, function(value){
-  	  res.send(value);
-  	  next();
-    });
+	if(req.access>=0){
+		storage.update(req.params.id, req.body.value, function(value){
+			res.send(value);
+			next();
+		});
+	} else {
+		next();
+	}
 });
 
 //server.post('/drop/:id', function respond(req, res, next) {
@@ -58,37 +90,49 @@ server.post('/update/:id', function respond(req, res, next) {
 //});
 
 server.post('/relate', function respond(req, res, next) {
-	storage.relate(req.body.aid, req.body.bid, function(value){
-  		res.send(value);
-  		next();
-    });
+	if(req.access>=0){
+		storage.relate(req.body.aid, req.body.bid, function(value){
+			res.send(value);
+			next();
+		});
+	} else {
+		next();
+	}
 });
 
 server.post('/createrelate', function respond(req, res, next) {
-	storage.create(req.body.type, req.body.value, function(value){
-		storage.relate(req.body.bid, value.id, function(rel){
-			res.send({
-				node: value,
-				relation: rel
+	if(req.access>=0){
+		storage.create(req.body.type, req.body.value, function(value){
+			storage.relate(req.body.bid, value.id, function(rel){
+				res.send({
+					node: value,
+					relation: rel
+				});
+				next();
 			});
-			next();
 		});
-	});
+	} else {
+		next();
+	}
 });
 
 server.post('/unrelate', function respond(req, res, next) {
-	storage.unrelate(req.body.aid, req.body.bid, function(value){
-  		res.send(value);
-  		next();
-    });
+	if(req.access>=0){
+		storage.unrelate(req.body.aid, req.body.bid, function(value){
+			res.send(value);
+			next();
+		});
+	} else {
+		next();
+	}
 });
 
-server.get('/get/:id', function respond(req, res, next) {
-	storage.get(req.params.id, function(value){
-		res.send(value);
-	});
-	next();
-});
+//server.get('/get/:id', function respond(req, res, next) {
+//	storage.get(req.params.id, function(value){
+//		res.send(value);
+//	});
+//	next();
+//});
 
 //not working
 //server.get('/select/:query', function respond(req, res, next) {
@@ -120,19 +164,26 @@ server.get('/dump/:age', function respond(req, res, next) {
 });
 
 
-
 server.post('/user/add', function respond(req, res, next) {
-	storage.addUser(req.body.id,function(value){
-		res.send(value);
+	if(req.access>0){
+		storage.addUser(req.body.id,function(value){
+			res.send(value);
+			next();
+		});
+	} else {
 		next();
-	});
+	}
 });
 
 server.post('/user/set', function respond(req, res, next) {
-	storage.updateUser(req.body.id, req.body.name,function(value){
-		res.send(value);
+	if(req.access>0){
+		storage.updateUser(req.body.id, req.body.name, req.body.role,function(value){
+			res.send(value);
+			next();
+		});
+	} else {
 		next();
-	});
+	}
 });
 
 server.post('/user/hash', function respond(req, res, next) {
@@ -154,6 +205,17 @@ server.post('/user/check', function respond(req, res, next) {
 		res.send(value);
 		next();
 	});
+});
+
+server.get('/users/', function respond(req, res, next) {
+	if(req.access>0){
+		storage.getUsers(function(value){
+			res.send(value);
+			next();
+		});
+	} else {
+		next();
+	}
 });
 
 

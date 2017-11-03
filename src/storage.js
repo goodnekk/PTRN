@@ -16,7 +16,7 @@ db.serialize(function() {
 	db.run("CREATE TABLE IF NOT EXISTS relations (tid INTEGER, aid INTEGER, bid INTEGER, del INTEGER)");
 
 	//keeps track of users
-	db.run("CREATE TABLE IF NOT EXISTS users (name TEXT, pass TEXT, node INTEGER)");
+	db.run("CREATE TABLE IF NOT EXISTS users (name TEXT, pass TEXT, node INTEGER, role INTEGER)");
 });
 
 
@@ -195,7 +195,7 @@ function age(callback){
 
 function addUser(nodeid, callback){
 	var pass = uuid();
-	db.run("INSERT INTO users (pass, node) VALUES(?,?)", [pass, nodeid], function(err){
+	db.run("INSERT INTO users (pass, node, role) VALUES(?,?,?)", [pass, nodeid, -1], function(err){
 		if(err) console.log(err);
 		console.log("   | NEW USER ");
 		callback({
@@ -204,9 +204,9 @@ function addUser(nodeid, callback){
 	});
 }
 
-function updateUser(nodeid, name, callback){
+function updateUser(nodeid, name, role, callback){
 	var pass = uuid();
-	db.run("UPDATE users SET name=? WHERE node=?", [name, nodeid], function(err){
+	db.run("UPDATE users SET name=?, role=? WHERE node=?", [name, role, nodeid], function(err){
 		if(err) console.log(err);
 		console.log("   | SET USER ");
 		callback({
@@ -236,15 +236,34 @@ function hashUser(name, callback){
 }
 
 function checkUser(name, pass, callback){
-	db.get("SELECT name FROM users WHERE name=? AND pass=?", [name, pass], function(err, result){
+	db.get("SELECT name, node, role FROM users WHERE name=? AND pass=?", [name, pass], function(err, result){
 		if(err) console.log(err);
+		var succes = false;
 		if(result !== undefined){
-			result = true;
-		} else {
-			result = false;
+			succes = true;
 		}
-		console.log("   | CHECK USER "+result);
-		callback({succes: result});
+		console.log("   | CHECK USER "+succes);
+		callback({succes: succes, node: result.node, role: result.role});
+	});
+}
+
+function checkUserAccess(pass, callback){
+	db.get("SELECT role FROM users WHERE pass=?", [pass], function(err, result){
+		if(err) console.log(err);
+		var succes = false;
+		if(result !== undefined){
+			succes = true;
+		}
+		callback({succes: succes, role: result.role});
+	});
+}
+
+function getUsers(callback){
+	var pass = uuid();
+	db.all("SELECT name, node, role FROM users", function(err, result){
+		if(err) console.log(err);
+		console.log("   | GET USERS ");
+		callback(result);
 	});
 }
 
@@ -268,5 +287,7 @@ module.exports = {
 	addUser: addUser,
 	updateUser: updateUser,
 	hashUser: hashUser,
-	checkUser: checkUser
+	checkUser: checkUser,
+	checkUserAccess: checkUserAccess,
+	getUsers: getUsers
 };
