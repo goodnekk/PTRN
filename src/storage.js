@@ -241,6 +241,8 @@ function checkUser(name, pass, callback){
 		var succes = false;
 		if(result !== undefined){
 			succes = true;
+		} else {
+			result = {node: false, result: false};
 		}
 		console.log("   | CHECK USER "+succes);
 		callback({succes: succes, node: result.node, role: result.role});
@@ -253,6 +255,8 @@ function checkUserAccess(pass, callback){
 		var succes = false;
 		if(result !== undefined){
 			succes = true;
+		} else {
+			result = {role: false};
 		}
 		callback({succes: succes, role: result.role});
 	});
