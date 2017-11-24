@@ -83,12 +83,12 @@ server.post('/update/:id', function respond(req, res, next) {
 	}
 });
 
-//server.post('/drop/:id', function respond(req, res, next) {
-//	storage.update(req.params.id, "ham", function(value){
-//  	  res.send({tid: value});
-//  	  next();
-//    });
-//});
+server.post('/drop/:id', function respond(req, res, next) {
+	storage.drop(req.params.id, function(value){
+  	  res.send({tid: value});
+  	  next();
+    });
+});
 
 server.post('/relate', function respond(req, res, next) {
 	if(req.access>=0){

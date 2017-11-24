@@ -63,6 +63,16 @@ function update(id, value, callback){
 	});
 }
 
+function drop(id, callback){
+	transact(function(tid){
+		db.run("INSERT INTO nodevalues (tid, id, del) VALUES(?, ?, ?)", [tid, id, 1], function(err){
+			if(err) console.log(err);
+			console.log(tid+"| DROP "+id+" "+":"+id);
+			callback(id);
+		});
+	});
+}
+
 function relate(aid, bid, callback){
 	transact(function(tid){
 		db.run("INSERT INTO relations (tid, aid, bid) VALUES(?, ?, ?)", [tid, aid, bid], function(err){
@@ -276,6 +286,7 @@ module.exports = {
 	create: create,
 	findorcreate: findorcreate,
 	update: update,
+	drop: drop,
 
 	relate: relate,
 	unrelate: unrelate,
