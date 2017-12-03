@@ -89,7 +89,7 @@ function relate(aid, bid, callback){
 
 function unrelate(aid, bid, callback){
 	transact(function(tid){
-		db.run("UPDATE relations SET del=? WHERE (aid=? AND bid=?) OR (aid=? AND bid=?)", [tid, aid, bid, bid, aid], function(err){
+		db.run("UPDATE relations SET del=? WHERE tid IN (SELECT tid FROM relations WHERE (aid=? AND bid=?) OR (aid=? AND bid=?) ORDER BY tid DESC LIMIT 1)", [tid, aid, bid, bid, aid], function(err){
 			if(err) console.log(err);
 			console.log(tid+"| UNRELATE "+aid+" <-> "+bid);
 			callback({
@@ -179,9 +179,9 @@ function dump(callback){
 
 function dumpafter(age, callback){
 	//nodes
-	db.all("SELECT * FROM nodes INNER JOIN (SELECT id, MAX(tid) tid, value FROM nodevalues GROUP BY id) nv ON nodes.id = nv.id WHERE nv.tid > ?", [age], function(err, nodes){
+	db.all("SELECT * FROM nodes INNER JOIN (SELECT id, MAX(tid) AS tid, value, del FROM nodevalues WHERE tid > ? GROUP BY id) nv ON nodes.id = nv.id", [age],function(err, nodes){
 		if(err) console.log(err);
-		db.all("SELECT * FROM relations WHERE tid > ?", [age], function(err, relations){
+		db.all("SELECT * FROM relations WHERE tid > ? OR del > ?", [age, age], function(err, relations){
 			if(err) console.log(err);
 			callback({
 				nodes: nodes,

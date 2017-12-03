@@ -3,6 +3,8 @@
 	"storage": "__DB_STORAGE__",
 	"mail": {
 		"apiKey": "__MAIL_APIKEY__",
-		"domain": "__MAIL_DOMAIN__"
+		"domain": "__MAIL_DOMAIN__",
+		"from": "__MAIL_FROM__",
+		"origin": "__MAIL_ORIGIN__"
 	}
 }
