@@ -1,6 +1,7 @@
 {
 	"port": "__PORT__",
 	"storage": "__DB_STORAGE__",
+	"persistance": "__DB_PERSIST__",
 	"mail": {
 		"apiKey": "__MAIL_APIKEY__",
 		"domain": "__MAIL_DOMAIN__",

@@ -1,6 +1,7 @@
 var restify = require('restify');
 var corsMiddleware = require('restify-cors-middleware');
 var storage = require('./storage.js');
+var ptrn = require('./ptrn.js');
 var mail = require('./mail.js');
 var config = require('./config.json');
 
@@ -38,153 +39,68 @@ server.use(function authenticate(req, res, next) {
 
 });
 
-server.get('/', function respond(req, res, next) {
-	storage.age(function(value){
-		res.send({
-			"version": "0.0.1",
-			"transactions": value.transaction,
-			"lastTransaction": value.timestamp
-		});
-		next();
-    });
-});
-
-//routes
-server.post('/create', function respond(req, res, next) {
-	if(req.access>=0){
-		storage.create(req.body.type, req.body.value, function(value){
-			res.send(value);
-			next();
-		});
-	} else {
-		next();
-	}
-});
-
-server.post('/findorcreate', function respond(req, res, next) {
-	if(req.access>=0){
-		storage.findorcreate(req.body.type, req.body.value, function(value){
-			res.send(value);
-			next();
-		});
-	} else {
-		next();
-	}
-});
-
-server.post('/update/:id', function respond(req, res, next) {
-	if(req.access>=0){
-		storage.update(req.params.id, req.body.value, function(value){
-			res.send(value);
-			next();
-		});
-	} else {
-		next();
-	}
-});
-
-server.post('/drop/:id', function respond(req, res, next) {
-	storage.drop(req.params.id, function(value){
-  	  res.send({tid: value});
-  	  next();
-    });
-});
-
-server.post('/relate', function respond(req, res, next) {
-	if(req.access>=0){
-		storage.relate(req.body.aid, req.body.bid, function(value){
-			res.send(value);
-			next();
-		});
-	} else {
-		next();
-	}
-});
-
-server.post('/createrelate', function respond(req, res, next) {
-	if(req.access>=0){
-		storage.create(req.body.type, req.body.value, function(value){
-			storage.relate(req.body.bid, value.id, function(rel){
-				res.send({
-					node: value,
-					relation: rel
-				});
-				next();
-			});
-		});
-	} else {
-		next();
-	}
-});
-
-server.post('/unrelate', function respond(req, res, next) {
-	if(req.access>=0){
-		storage.unrelate(req.body.aid, req.body.bid, function(value){
-			res.send(value);
-			next();
-		});
-	} else {
-		next();
-	}
-});
-
-//server.get('/get/:id', function respond(req, res, next) {
-//	storage.get(req.params.id, function(value){
-//		res.send(value);
-//	});
-//	next();
+//server.get('/', function respond(req, res, next) {
+//	storage.age(function(value){
+//		res.send({
+//			"version": "0.0.1",
+//			"transactions": value.transaction,
+//			"lastTransaction": value.timestamp
+//		});
+//		next();
+//    });
 //});
 
-//not working
-//server.get('/select/:query', function respond(req, res, next) {
-//	storage.select(req.params.query, function(value){
+//routes
+server.post('/transact', function respond(req, res, next) {
+    console.log(req.body);
+    res.send(ptrn.consume(req.body));
+    ptrn.writetodisc();
+    next();
+	//if(req.access>=0){
+	//	storage.create(req.body.type, req.body.value, function(value){
+	//		res.send(value);
+	//		next();
+	//	});
+	//} else {
+	//	next();
+	//}
+});
+
+
+
+server.get('/dump', function respond(req, res, next) {
+	res.send(ptrn.dump());
+	next();
+});
+
+//server.get('/dump/:age', function respond(req, res, next) {
+//	storage.dumpafter(req.params.age,function(value){
 //  		res.send(value);
 //  		next();
 //    });
 //});
 
-server.get('/relation/:id', function respond(req, res, next) {
-	storage.relation(req.params.id, function(value){
-  		res.send(value);
-  		next();
-    });
-});
-
-server.get('/dump', function respond(req, res, next) {
-	storage.dump(function(value){
-  		res.send(value);
-  		next();
-    });
-});
-
-server.get('/dump/:age', function respond(req, res, next) {
-	storage.dumpafter(req.params.age,function(value){
-  		res.send(value);
-  		next();
-    });
-});
-
 
 server.post('/user/add', function respond(req, res, next) {
-	if(req.access>0){
+	//if(req.access>0){
 		storage.addUser(req.body.id,function(value){
 			res.send(value);
 			next();
 		});
-	} else {
-		next();
-	}
+	//} else {
+	//	next();
+	//}
 });
 
 server.post('/user/set', function respond(req, res, next) {
-	if(req.access>0){
+	//if(req.access>0){
 		storage.updateUser(req.body.id, req.body.name, req.body.role,function(value){
 			res.send(value);
 			next();
 		});
-	} else {
-		next();
-	}
+	//} else {
+	//	next();
+	//}
 });
 
 server.post('/user/hash', function respond(req, res, next) {
@@ -209,14 +125,14 @@ server.post('/user/check', function respond(req, res, next) {
 });
 
 server.get('/users/', function respond(req, res, next) {
-	if(req.access>0){
+	//if(req.access>0){
 		storage.getUsers(function(value){
 			res.send(value);
 			next();
 		});
-	} else {
-		next();
-	}
+	//} else {
+	//	next();
+	//}
 });
 
 

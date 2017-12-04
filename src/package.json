@@ -12,6 +12,7 @@
   "dependencies": {
     "elastic-email": "^1.0.4",
     "mailgun-js": "^0.13.1",
+    "node-persist": "^2.1.0",
     "restify": "^5.0.1",
     "restify-cors-middleware": "^1.0.1",
     "sqlite3": "^3.1.8",
