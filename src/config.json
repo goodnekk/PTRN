@@ -1,8 +1,11 @@
 {
-	"port": "9000",
-	"storage": "test.sqlite",
+	"port": "",
+	"storage": "",
+	"persistance": "",
 	"mail": {
 		"apiKey": "",
-		"domain": ""
+		"domain": "",
+		"from": "",
+		"origin": ""
 	}
 }
