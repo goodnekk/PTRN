@@ -6,6 +6,7 @@ var ptrn = (function(){
 	//storage, is responsible for quickly storing and retreiving data
 	var storage = (function(){
 
+		var age = 0;
 		var pub = {};
 
 		var transactions = [];
@@ -19,12 +20,21 @@ var ptrn = (function(){
 		var typemap = {};
 		var relationmap = {};
 
+		pub.setage = function(a){
+			if(a>age){age=a;}
+		};
+
+		pub.getage = function(){
+			return age;
+		};
+
 		pub.transact = function(callback){
 			var atom = {
 				tid: transactions.length,
 				time: new Date()
 			};
 
+			pub.setage(atom.tid);
 			atom.node = callback(atom.tid);
 			atom.value = atom.node.value[0];
 			transactions.push(atom);
@@ -54,7 +64,7 @@ var ptrn = (function(){
 				});
 				transaction.tid = updates.newtransactions[count].tid;
 				transaction.time = updates.newtransactions[count].time;
-
+				pub.setage(transaction.tid);
 				transactions[transaction.tid] = transaction;
 			});
 			speculativetransactions = [];
@@ -307,6 +317,18 @@ var ptrn = (function(){
 			});
 		};
 
+		pub.sync = function(newtransactions){
+			var transactions = storage.gettransactions();
+			newtransactions = newtransactions.filter(function(t, count){
+				return transactions.find(function(o){
+					return (o.tid === count);
+				}) === undefined;
+			});
+
+			//console.log("newtransactions", transactions, newtransactions);
+			pub.consume(newtransactions);
+		};
+
 		pub.consume = function(transactions){
 			var speculativeids = {};
 			var newtransactions = transactions.map(function(t){
@@ -521,6 +543,8 @@ var ptrn = (function(){
 			if(storage.getrelations()[atom.aid]){
 				return storage.getrelations()[atom.aid].map(function(rid){
 					return storage.getatoms()[rid];
+				}).filter(function(atom){
+					return (!atom.value[0].drop);
 				});
 			}
 			return [];
@@ -608,6 +632,7 @@ var ptrn = (function(){
 
 		/*PUBLIC INTERFACE*/
 		q.transact = speculator.publish;
+		q.getage = storage.getage;
 		//q.find = find;
 		//q.compare = compare;
 		q.log = storage.log;
@@ -666,7 +691,6 @@ var ptrn = (function(){
 		return pub;
 	})();
 
-
 	persist.init({
 		dir: config.persistance,
 	}).then(function() {
@@ -685,7 +709,6 @@ var ptrn = (function(){
 	}
 
 	return query;
-
 })();
 
 module.exports = ptrn;

@@ -39,16 +39,13 @@ server.use(function authenticate(req, res, next) {
 
 });
 
-//server.get('/', function respond(req, res, next) {
-//	storage.age(function(value){
-//		res.send({
-//			"version": "0.0.1",
-//			"transactions": value.transaction,
-//			"lastTransaction": value.timestamp
-//		});
-//		next();
-//    });
-//});
+server.get('/', function respond(req, res, next) {
+	res.send({
+		"version": "0.0.1",
+		"transactions": ptrn.getage(),
+	});
+	next();
+});
 
 //routes
 server.post('/transact', function respond(req, res, next) {
