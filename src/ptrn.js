@@ -294,27 +294,36 @@ var ptrn = (function(){
 		var pub = {};
 
 		pub.createatom = function(type, value){
-			return storage.transact(function(tid){
-				return storage.createatom(tid, type, value);
-			});
+			if(type !== undefined && value !== undefined){
+				return storage.transact(function(tid){
+					return storage.createatom(tid, type, value);
+				});
+			}
 		};
 
 		pub.updateatom = function(aid, value){
-			return storage.transact(function(tid){
-				return storage.writeatom(aid, tid, "", value);
-			});
+			if(aid !== undefined && value !== undefined){
+				return storage.transact(function(tid){
+					return storage.writeatom(aid, tid, "", value);
+				});
+			}
 		};
 
 		pub.relate = function(aid, bid, value){
-			return storage.transact(function(tid){
-				return storage.writerelation(tid, aid, bid, value);
-			});
+			if(aid !== undefined && bid !== undefined && value !== undefined){
+				return storage.transact(function(tid){
+					return storage.writerelation(tid, aid, bid, value);
+				});
+			}
+
 		};
 
 		pub.dropatom = function(aid){
-			return storage.transact(function(tid){
-				return storage.dropatom(aid, tid);
-			});
+			if(aid !== undefined){
+				return storage.transact(function(tid){
+					return storage.dropatom(aid, tid);
+				});
+			}
 		};
 
 		pub.sync = function(newtransactions){
