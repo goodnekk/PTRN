@@ -43,7 +43,7 @@ var ptrn = (function(){
 
 		pub.speculativetransact = function(callback){
 			var atom = {
-				tid: (transactions.length+speculativetransactions.length+10001),
+				tid: (transactions.length+speculativetransactions.length+100001),
 				time: new Date()
 			};
 
@@ -96,8 +96,8 @@ var ptrn = (function(){
 			}
 			//update rels
 			relations = relations.map(function(rel){
-				if(rel.aid>10000){rel.aid = updates.speculativeids[rel.aid];}
-				if(rel.bid>10000){rel.bid = updates.speculativeids[rel.bid];}
+				if(rel.aid>100000){rel.aid = updates.speculativeids[rel.aid];}
+				if(rel.bid>100000){rel.bid = updates.speculativeids[rel.bid];}
 				return rel;
 			});
 		};
@@ -134,8 +134,8 @@ var ptrn = (function(){
 
 		pub.createatom = function(tid, type, value){
 			var aid = atomCount++;
-			if(tid>10000){
-				aid = (aid+10001);
+			if(tid>100000){
+				aid = (aid+100001);
 			}
 			return pub.writeatom(aid, tid, type, value);
 		};
@@ -347,14 +347,14 @@ var ptrn = (function(){
 					speculativeids[t.aid] = newtransaction.node.aid;
 					return newtransaction;
 				} else if(t.transaction === "update") {
-					if(t.aid > 10000) {t.aid = speculativeids[t.aid];}
+					if(t.aid > 100000) {t.aid = speculativeids[t.aid];}
 					return pub.updateatom(t.aid, t.value);
 				} else if(t.transaction === "drop") {
-					if(t.aid > 10000) {t.aid = speculativeids[t.aid];}
+					if(t.aid > 100000) {t.aid = speculativeids[t.aid];}
 					return pub.dropatom(t.aid);
 				} else if(t.transaction === "relate") {
-					if(t.aid > 10000) {t.aid = speculativeids[t.aid];}
-					if(t.bid > 10000) {t.bid = speculativeids[t.bid];}
+					if(t.aid > 100000) {t.aid = speculativeids[t.aid];}
+					if(t.bid > 100000) {t.bid = speculativeids[t.bid];}
 					return pub.relate(t.aid, t.bid, t.value);
 				}
 			});
@@ -414,7 +414,7 @@ var ptrn = (function(){
 		};
 
 		pub.updateatom = function(aid, value){
-			if(storage.getatom(aid).value[0].tid>10000){
+			if(storage.getatom(aid).value[0].tid>100000){
 				return storage.overwriteatom(aid, value);
 			} else {
 				storage.speculativetransact(function(tid){
