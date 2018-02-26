@@ -89,6 +89,18 @@ server.post('/user/add', function respond(req, res, next) {
 	//}
 });
 
+server.post('/user/drop', function respond(req, res, next) {
+	//if(req.access>0){
+		storage.dropUser(req.body.id,function(value){
+			res.send(value);
+			next();
+		});
+	//} else {
+	//	next();
+	//}
+});
+
+
 server.post('/user/set', function respond(req, res, next) {
 	//if(req.access>0){
 		storage.updateUser(req.body.id, req.body.name, req.body.role,function(value){

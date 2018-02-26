@@ -214,6 +214,18 @@ function addUser(nodeid, callback){
 	});
 }
 
+
+function dropUser(nodeid, callback){
+	var pass = uuid();
+	db.run("DELETE FROM users WHERE node = ?", [nodeid], function(err){
+		if(err) console.log(err);
+		console.log("   | DROP USER ");
+		callback({
+			id: nodeid
+		});
+	});
+}
+
 function updateUser(nodeid, name, role, callback){
 	var pass = uuid();
 	db.run("UPDATE users SET name=?, role=? WHERE node=?", [name, role, nodeid], function(err){
@@ -300,6 +312,7 @@ module.exports = {
 	age: age,
 
 	addUser: addUser,
+	dropUser: dropUser,
 	updateUser: updateUser,
 	hashUser: hashUser,
 	checkUser: checkUser,
