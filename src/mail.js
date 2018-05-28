@@ -23,7 +23,7 @@ var config = require('./config.json');
 var elastic = require("elastic-email");
 
 var client = elastic.createClient({
-    apiKey: "f8f66ccb-9211-4104-8070-7f873537fb7c",
+    apiKey: config.mail.apiKey,
     // include the following if you want to override the default base path (https://api.elasticemail.com/v2)
     //host: "https://your.ownimplementation.com"
 });

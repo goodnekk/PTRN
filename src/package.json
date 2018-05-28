@@ -1,11 +1,15 @@
 {
   "name": "ptrnback",
   "version": "1.0.0",
-  "description": "",
+  "description": "backend for ptrn frontend",
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/goodnekk/PTRN.git"
   },
   "author": "",
   "license": "ISC",
@@ -16,6 +20,7 @@
     "restify": "^5.0.1",
     "restify-cors-middleware": "^1.0.1",
     "sqlite3": "^3.1.8",
-    "uuid": "^3.1.0"
+    "uuid": "^3.1.0",
+    "njwt": "^0.4.0"
   }
 }

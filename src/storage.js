@@ -263,6 +263,11 @@ function checkUser(name, pass, callback){
 		var succes = false;
 		if(result !== undefined){
 			succes = true;
+			//clear the value
+			db.run("UPDATE users SET pass=? WHERE name=?", [uuid(), name], function(err){
+				if(err) console.log(err);
+				console.log("   | REHASH USER ");
+			});
 		} else {
 			result = {node: false, result: false};
 		}
